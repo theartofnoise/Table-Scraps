@@ -1,0 +1,27 @@
+{
+  "name": "table-scraps",
+  "version": "1.0.0",
+  "description": "web scrape and save with node and mongo",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/theartofnoise/Table-Scraps.git"
+  },
+  "author": "Arthur Granquist",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/theartofnoise/Table-Scraps/issues"
+  },
+  "homepage": "https://github.com/theartofnoise/Table-Scraps#readme",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "cheerio": "^1.0.0-rc.3",
+    "express": "^4.16.4",
+    "mongoose": "^5.5.0",
+    "morgan": "^1.9.1"
+  }
+}
