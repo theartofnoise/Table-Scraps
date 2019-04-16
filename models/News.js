@@ -12,6 +12,10 @@ var NewsSchema = new Schema({
     required: true
   },
   // `link` is required and of type String
+  subHead: {
+    type: String,
+    required: true
+  },
   link: {
     type: String,
     required: true
@@ -19,10 +23,10 @@ var NewsSchema = new Schema({
   // `note` is an object that stores a Note id
   // The ref property links the ObjectId to the Note model
   // This allows us to populate the Article with an associated Note
-  note: {
+  note: [{
     type: Schema.Types.ObjectId,
     ref: "Comments"
-  }
+  }]
 });
 
 // This creates our model from the above schema, using mongoose's model method

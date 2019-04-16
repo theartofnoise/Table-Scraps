@@ -2,20 +2,34 @@
 
   $.getJSON("/articles", function(data) {
       // For each one
-      console.log(data);
+      $("#howManyFound").append(`<h3>You found ${data.length} articles!<h3><h5> Click the title to comment.</h5>`)
       for (var i = 0; i < data.length; i++) {
-        // Display the apropos information on the page
-        $("#displayCard").append("<p data-id='" + data[i]._id + "'>" + data[i].title + "<br />" + data[i].link + "</p>");
-        // $("displayCard").append('fuckkkkkofff');
+           $(".displayCard").append(`<div class="row">
+              
+                 <div class="card blue-grey darken-1">
+                   <div class="card-content white-text">
+                     <span data-id="${data[i]._id}" class="displayTitle card-title">${data[i].title}</span>
+                     <p class="displayBody">${data[i].subHead}</p>
+                   </div>
+                   <div class="card-action">
+                     <a href="${data[i].link}" target="_blank" class="displayLink">Read More...</a>
+                  </div>
+                  <div data-id="${data[i]._id}" class="notes"></div>
+                  <div data-id="${data[i]._id}" class="comments"></div>
+                  
+                  
+                  </div>  
+  
+  </div>`);
       }
     });
 
 
 
 // Whenever someone clicks a p tag
-$(document).on("click", "p", function() {
+$(document).on("click", "span", function() {
   // Empty the notes from the note section
-  $("#notes").empty();
+  $(".notes").empty();
   // Save the id from the p tag
   var thisId = $(this).attr("data-id");
 
@@ -26,28 +40,30 @@ $(document).on("click", "p", function() {
   })
     // With that done, add the note information to the page
     .then(function(data) {
-      console.log(data);
+      console.table(data);
       // The title of the article
-      $("#notes").append("<h2>" + data.title + "</h2>");
+      // $("#notes").append("<h2>" + data.title + "</h2>");
+      $(`.notes[data-id="${data._id}"]`).append(`<h5>${data.title}</h5>`);
       // An input to enter a new title
-      $("#notes").append("<input id='titleinput' name='title' >");
+      $(`.notes[data-id="${data._id}"]`).append("<input class='titleinput' placeholder='User Name' name='title' >");
       // A textarea to add a new note body
-      $("#notes").append("<textarea id='bodyinput' name='body'></textarea>");
+      $(`.notes[data-id="${data._id}"]`).append("<textarea class='bodyinput' placeholder='comments' name='body'></textarea>");
       // A button to submit a new note, with the id of the article saved to it
-      $("#notes").append("<button data-id='" + data._id + "' id='savenote'>Save Note</button>");
+      $(`.notes[data-id="${data._id}"]`).append("<button data-id='" + data._id + "' class='savenote'>Save Note</button>");
 
       // If there's a note in the article
-      if (data.note) {
+      if (data.body) {
+        console.log("hellooooo")
         // Place the title of the note in the title input
-        $("#titleinput").val(data.note.title);
+        $(".titleinput").val(data.note.title);
         // Place the body of the note in the body textarea
-        $("#bodyinput").val(data.note.body);
+        $(".bodyinput").val(data.note.body);
       }
     });
 });
 
 // When you click the savenote button
-$(document).on("click", "#savenote", function() {
+$(document).on("click", ".savenote", function() {
   // Grab the id associated with the article from the submit button
   var thisId = $(this).attr("data-id");
 
@@ -57,9 +73,9 @@ $(document).on("click", "#savenote", function() {
     url: "/articles/" + thisId,
     data: {
       // Value taken from title input
-      title: $("#titleinput").val(),
+      title: $(".titleinput").val(),
       // Value taken from note textarea
-      body: $("#bodyinput").val()
+      body: $(".bodyinput").val()
     }
   })
     // With that done
@@ -67,10 +83,22 @@ $(document).on("click", "#savenote", function() {
       // Log the response
       console.log(data);
       // Empty the notes section
-      $("#notes").empty();
+      $(".notes").empty();
+
+      $.ajax({
+        method: "GET",
+        url: "/comments/" + thisId,
+        
+      }).then(function(response){
+        console.log(response);
+        for (var i = 0; i < response.note.length; i++) {
+          $(`.comments[data-id="${thisId}"]`).append(`<div class="comments card-content white-text">${response.note[i]}</div>`);
+     }
+
+      })
     });
 
   // Also, remove the values entered in the input and textarea for note entry
-  $("#titleinput").val("");
-  $("#bodyinput").val("");
+  $(".titleinput").val("");
+  $(".bodyinput").val("");
 });

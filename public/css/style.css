@@ -1,11 +1,61 @@
 .nav-wrapper {
-    padding-left: 5rem;
-    padding-right: 5rem;
+    padding-left: 10rem;
+    padding-right: 10rem;
 }
-.container {
-    /* background-color: lightsteelblue; */
-    width: 100%;
-    height: 100%;
-    margin-left: 5rem;
-    margin-right: 5rem;
+
+#displayCard {
+    column-width: 33%;
+    column-rule-width: 3px;
+    /* columns: 3; */
 }
+
+/* Materialize card grid */
+
+/* $small-screen-up: 601px !default;
+$medium-screen-up: 993px !default;
+$large-screen-up: 1201px !default;
+$small-screen: 600px !default;
+$medium-screen: 992px !default;
+$large-screen: 1200px !default;
+
+$medium-and-up: "only screen and (min-width : #{$small-screen-up})" !default;
+$large-and-up: "only screen and (min-width : #{$medium-screen-up})" !default;
+$small-and-down: "only screen and (max-width : #{$small-screen})" !default;
+$medium-and-down: "only screen and (max-width : #{$medium-screen})" !default;
+$medium-only: "only screen and (min-width : #{$small-screen-up}) and (max-width : #{$medium-screen})" !default; */
+/* 
+@mixin column-count($ct) {
+  -webkit-column-count: $ct;
+  -moz-column-count: $ct;
+  column-count: $ct;
+}
+
+.cards-container {
+  column-break-inside: avoid;
+  .card {
+    display: inline-block;
+    overflow: visible;
+  }
+}
+
+@media #{$small-and-down} {
+  .cards-container {
+    @include column-count(1);
+  }
+}
+@media #{$medium-and-up} {
+  .cards-container {
+    @include column-count(2);
+  }
+}
+@media #{$large-and-up} {
+  .cards-container {
+    @include column-count(3);
+  }
+}
+
+
+/// Styles for demo
+.text-center {
+  text-align: center;
+} */

@@ -34,28 +34,32 @@ mongoose.connect("mongodb://localhost/tableScraps", { useNewUrlParser: true });
 // A GET route for scraping the echoJS website
 app.get("/scrape", function(req, res) {
   // First, we grab the body of the html with axios
-  axios.get("http://www.mtv.com/news/music/").then(function(response) {
+  axios.get("http://www.mtv.com/news/genre/rock/").then(function(response) {
     // Then, we load that into cheerio and save it to $ for a shorthand selector
     var $ = cheerio.load(response.data);
-
+    console.log(response.data);
     // Now, we grab every h2 within an article tag, and do the following:
-    $("h1.headline").each(function(i, element) {
+    $(".post-header").each(function(i, element) {
       // Save an empty result object
       var result = {};
 
       // Add the text and href of every link, and save them as properties of the result object
       result.title = $(this)
-        .children("a")
+        .children("h1")
+        .text();
+      result.subHead = $(this)
+        .children("p") 
         .text();
       result.link = $(this)
-        .children("a")
-        .attr("href");
+        .find(".post")
+        .attr("href"); 
 
       // Create a new Article using the `result` object built from scraping
       db.News.create(result)
         .then(function(dbArticle) {
           // View the added result in the console
-          console.log(dbArticle);
+          // console.log(dbArticle);
+          res.send(dbArticle);
         })
         .catch(function(err) {
           // If an error occurred, send it to the client
@@ -64,7 +68,6 @@ app.get("/scrape", function(req, res) {
     });
 
     // If we were able to successfully scrape and save an Article, send a message to the client
-    res.send("Scrape Complete");
   });
 });
 
@@ -90,7 +93,23 @@ app.get("/articles/:id", function(req, res) {
   // and run the populate method with "note",
   // then responds with the article with the note included
   db.News.findOne({ _id: req.params.id})
-  .populate('comments')
+  .populate('note')
+  .then(function(dbArticle) {
+    // If all Users are successfully found, send them back to the client
+    res.json(dbArticle);
+  })
+  .catch(function(err) {
+    // If an error occurs, send the error back to the client
+    res.json(err);
+  });
+});
+app.get("/comments/:id", function(req, res) {
+  // TODO
+  // ====
+  // Finish the route so it finds one article using the req.params.id,
+  // and run the populate method with "note",
+  // then responds with the article with the note included
+  db.News.findOne({ _id: req.params.id})
   .then(function(dbArticle) {
     // If all Users are successfully found, send them back to the client
     res.json(dbArticle);
@@ -101,6 +120,8 @@ app.get("/articles/:id", function(req, res) {
   });
 });
 
+
+
 // Route for saving/updating an Article's associated Note
 app.post("/articles/:id", function(req, res) {
   // TODO
@@ -110,15 +131,19 @@ app.post("/articles/:id", function(req, res) {
   // and update it's "note" property with the _id of the new note
   db.Comments.create(req.body)
     .then(function(dbNote) {
+      // console.log("myNote"+dbNote);
       // If a Note was created successfully, find one User (there's only one) and push the new Note's _id to the User's `notes` array
       // { new: true } tells the query that we want it to return the updated User -- it returns the original by default
-      // Since our mongoose query returns a promise, we can chain another `.then` which receives the result of the query
-      return db.News.findOneAndUpdate({_id: req.params.id}, { notes: dbNote._id }, { new: true });
+      // Since our mongoose query returns a promise, we can chain another `.then` which receives the result of the querydb.User.findOneAndUpdate({}, { $push: { notes: dbNote._id } }, { new: true })
+      db.News.findOneAndUpdate({_id: req.params.id}, { $push: { note: dbNote._id }}, { new: true })
+        .then(function(data){
+          res.json(data);
+        });
     })
-    .then(function(dbArticle) {
-      // If the User was updated successfully, send it back to the client
-      res.json(dbArticle);
-    })
+    // .then(function(dbArticle) {
+    //   // If the User was updated successfully, send it back to the client
+    //   res.json(dbArticle);
+    // })
     .catch(function(err) {
       // If an error occurs, send it back to the client
       res.json(err);
