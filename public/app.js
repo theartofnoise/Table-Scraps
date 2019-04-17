@@ -1,5 +1,53 @@
-// Grab the articles as a json
 
+const getComments = (that) => {
+  console.log("got"+that);
+   // Empty the notes from the note section
+   $(".notes").empty();
+   // Save the id from the p tag
+   var thisId = that;
+ 
+   // Now make an ajax call for the Article
+   $.ajax({
+     method: "GET",
+     url: "/articles/" + thisId
+   })
+     // With that done, add the note information to the page
+     .then(function(data) {
+       console.table(data);
+       // The title of the article
+       $(`.notes[data-id="${data._id}"]`).append(`<h5>${data.title}</h5>`);
+       // An input to enter a new title
+       $(`.notes[data-id="${data._id}"]`).append("<input class='titleinput' placeholder='User Name' name='title' >");
+       // A textarea to add a new note body
+       $(`.notes[data-id="${data._id}"]`).append("<textarea class='bodyinput' placeholder='comments' name='body'></textarea>");
+       // A button to submit a new note, with the id of the article saved to it
+       $(`.notes[data-id="${data._id}"]`).append("<button data-id='" + data._id + "' class='savenote'>Save Note</button>");
+
+
+      //  loads comments
+      for (var i = 0; i < data.note.length; i++) {
+        $(`.comments[data-id="${data._id}"]`).append(`
+        <div id="comment${data.note[i]}" class="comments card-content white-text">
+        <button data-id="${data.note[i]}" id="delete${data.note[i]}" class="waves-effect waves-light btn-small red accent-3 delete">X</button>
+           <strong>${data.note[i].title}</strong>
+           ${data.note[i].body}
+           <hr>
+        </div>
+        `);
+      }
+ 
+       // If there's a note in the article
+       if (data.body) {
+         // Place the title of the note in the title input
+         $(".titleinput").val(data.note.title);
+         // Place the body of the note in the body textarea
+         $(".bodyinput").val(data.note.body);
+       }
+     });
+}
+
+
+// Grab the articles as a json
   $.getJSON("/articles", function(data) {
       // For each one
       $("#howManyFound").append(`<h3>You found ${data.length} articles!<h3><h5> Click the title to comment.</h5>`)
@@ -13,6 +61,7 @@
                    </div>
                    <div class="card-action">
                      <a href="${data[i].link}" target="_blank" class="displayLink">Read More...</a>
+                     <button data-id="${data[i]._id}" id="seeComments">See Comments</button>
                   </div>
                   <div data-id="${data[i]._id}" class="notes"></div>
                   <div data-id="${data[i]._id}" class="comments"></div>
@@ -25,42 +74,42 @@
     });
 
 
-
 // Whenever someone clicks a p tag
 $(document).on("click", "span", function() {
-  // Empty the notes from the note section
-  $(".notes").empty();
-  // Save the id from the p tag
-  var thisId = $(this).attr("data-id");
-
-  // Now make an ajax call for the Article
-  $.ajax({
-    method: "GET",
-    url: "/articles/" + thisId
-  })
-    // With that done, add the note information to the page
-    .then(function(data) {
-      console.table(data);
-      // The title of the article
-      // $("#notes").append("<h2>" + data.title + "</h2>");
-      $(`.notes[data-id="${data._id}"]`).append(`<h5>${data.title}</h5>`);
-      // An input to enter a new title
-      $(`.notes[data-id="${data._id}"]`).append("<input class='titleinput' placeholder='User Name' name='title' >");
-      // A textarea to add a new note body
-      $(`.notes[data-id="${data._id}"]`).append("<textarea class='bodyinput' placeholder='comments' name='body'></textarea>");
-      // A button to submit a new note, with the id of the article saved to it
-      $(`.notes[data-id="${data._id}"]`).append("<button data-id='" + data._id + "' class='savenote'>Save Note</button>");
-
-      // If there's a note in the article
-      if (data.body) {
-        console.log("hellooooo")
-        // Place the title of the note in the title input
-        $(".titleinput").val(data.note.title);
-        // Place the body of the note in the body textarea
-        $(".bodyinput").val(data.note.body);
-      }
-    });
+  let id = $(this).attr("data-id")
+  console.log(id);
+ getComments(id);
 });
+
+// see comments
+$(document).on("click","#seeComments", function() {
+  
+  let id = $(this).attr("data-id");
+  console.log("id "+id);
+ getComments(id);
+});
+
+
+// delete button
+$(document).on("click", ".delete", function() {
+  // Grab the id associated with the article from the submit button
+  var thisId = $(this).attr("data-id");
+  console.log(thisId);
+  $.ajax({
+    type: "DELETE",
+    url: "/delete/" + thisId,
+    success: function (data) {
+        console.log(data);
+
+        $("#comment" + thisId).remove();
+    },
+    error: function (data) {
+        console.log('Error:', data);
+    }
+});
+
+});
+
 
 // When you click the savenote button
 $(document).on("click", ".savenote", function() {
@@ -85,17 +134,23 @@ $(document).on("click", ".savenote", function() {
       // Empty the notes section
       $(".notes").empty();
 
-      $.ajax({
-        method: "GET",
-        url: "/comments/" + thisId,
-        
-      }).then(function(response){
-        console.log(response);
-        for (var i = 0; i < response.note.length; i++) {
-          $(`.comments[data-id="${thisId}"]`).append(`<div class="comments card-content white-text">${response.note[i]}</div>`);
-     }
+        $.ajax({
+          method: "GET",
+          url: "/comments/" + thisId,
+          
+        }).then(function(response){
+          console.log(response);
+          // adds comment with a delete button
+          for (var i = 0; i < response.note.length; i++) {
+            $(`.comments[data-id="${thisId}"]`).append(`
+            <div id="comment${response.note[i]}" class="comments card-content white-text">
+            <button data-id="${response.note[i]}" id="delete${response.note[i]}" class="waves-effect waves-light btn-small red accent-3 delete">X</button>
+              ${response.note[i]}
+            </div>
+            `);
+      }
 
-      })
+        })
     });
 
   // Also, remove the values entered in the input and textarea for note entry
