@@ -1,6 +1,5 @@
 
 const getComments = (that) => {
-  console.log("got"+that);
    // Empty the notes from the note section
    $(".notes").empty();
    // Save the id from the p tag
@@ -13,7 +12,6 @@ const getComments = (that) => {
    })
      // With that done, add the note information to the page
      .then(function(data) {
-       console.table(data);
        // The title of the article
        $(`.notes[data-id="${data._id}"]`).append(`<h5>${data.title}</h5>`);
        // An input to enter a new title
@@ -21,14 +19,14 @@ const getComments = (that) => {
        // A textarea to add a new note body
        $(`.notes[data-id="${data._id}"]`).append("<textarea class='bodyinput' placeholder='comments' name='body'></textarea>");
        // A button to submit a new note, with the id of the article saved to it
-       $(`.notes[data-id="${data._id}"]`).append("<button data-id='" + data._id + "' class='savenote'>Save Note</button>");
+       $(`.notes[data-id="${data._id}"]`).append("<button data-id='" + data._id + "' class='savenote waves-effect waves-light btn-small grey lighten-2 '>Save Note</button>");
 
-
+       $(`.comments`).empty();
       //  loads comments
       for (var i = 0; i < data.note.length; i++) {
         $(`.comments[data-id="${data._id}"]`).append(`
-        <div id="comment${data.note[i]}" class="comments card-content white-text">
-        <button data-id="${data.note[i]}" id="delete${data.note[i]}" class="waves-effect waves-light btn-small red accent-3 delete">X</button>
+        <div id="comment${data.note[i]._id}" class="comments card-content white-text">
+        <button data-id="${data.note[i]._id}" id="delete${data.note[i]._id}" class="waves-effect waves-light btn-small red accent-3 delete">X</button>
            <strong>${data.note[i].title}</strong>
            ${data.note[i].body}
            <hr>
@@ -61,7 +59,7 @@ const getComments = (that) => {
                    </div>
                    <div class="card-action">
                      <a href="${data[i].link}" target="_blank" class="displayLink">Read More...</a>
-                     <button data-id="${data[i]._id}" id="seeComments">See Comments</button>
+                     <button data-id="${data[i]._id}" id="seeComments" class="waves-effect waves-light btn-small grey lighten-2">See Comments</button>
                   </div>
                   <div data-id="${data[i]._id}" class="notes"></div>
                   <div data-id="${data[i]._id}" class="comments"></div>
@@ -77,7 +75,6 @@ const getComments = (that) => {
 // Whenever someone clicks a p tag
 $(document).on("click", "span", function() {
   let id = $(this).attr("data-id")
-  console.log(id);
  getComments(id);
 });
 
@@ -85,7 +82,6 @@ $(document).on("click", "span", function() {
 $(document).on("click","#seeComments", function() {
   
   let id = $(this).attr("data-id");
-  console.log("id "+id);
  getComments(id);
 });
 
@@ -94,12 +90,10 @@ $(document).on("click","#seeComments", function() {
 $(document).on("click", ".delete", function() {
   // Grab the id associated with the article from the submit button
   var thisId = $(this).attr("data-id");
-  console.log(thisId);
   $.ajax({
     type: "DELETE",
     url: "/delete/" + thisId,
     success: function (data) {
-        console.log(data);
 
         $("#comment" + thisId).remove();
     },
@@ -115,6 +109,7 @@ $(document).on("click", ".delete", function() {
 $(document).on("click", ".savenote", function() {
   // Grab the id associated with the article from the submit button
   var thisId = $(this).attr("data-id");
+  // console.log(thisId);
 
   // Run a POST request to change the note, using what's entered in the inputs
   $.ajax({
@@ -130,7 +125,6 @@ $(document).on("click", ".savenote", function() {
     // With that done
     .then(function(data) {
       // Log the response
-      console.log(data);
       // Empty the notes section
       $(".notes").empty();
 
@@ -139,9 +133,10 @@ $(document).on("click", ".savenote", function() {
           url: "/comments/" + thisId,
           
         }).then(function(response){
-          console.log(response);
+          $(`.comments`).empty();
           // adds comment with a delete button
-          for (var i = 0; i < response.note.length; i++) {
+          for (var i = 0; i < response.length; i++) {
+            
             $(`.comments[data-id="${thisId}"]`).append(`
             <div id="comment${response.note[i]}" class="comments card-content white-text">
             <button data-id="${response.note[i]}" id="delete${response.note[i]}" class="waves-effect waves-light btn-small red accent-3 delete">X</button>

@@ -9,6 +9,8 @@
     /* columns: 3; */
 }
 
+.grey, a {color: black!important}
+
 /* Materialize card grid */
 
 /* $small-screen-up: 601px !default;

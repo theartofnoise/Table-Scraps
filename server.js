@@ -87,7 +87,6 @@ app.get("/articles", function(req, res) {
 
 // delete a comment
 app.delete("/delete/:id", function(req, res) {
-  console.log("this delete");
   // TODO: Finish the route so it grabs all of the articles
   db.Comments.findByIdAndRemove(req.params.id, (err, todo) => {
     // As always, handle any potential errors:
@@ -95,11 +94,25 @@ app.delete("/delete/:id", function(req, res) {
     // We'll create a simple object to send back with a message and the id of the document that was removed
     // You can really do this however you want, though.
     const response = {
-        message: "Comment successfully deleted",
-        id: todo._id
+      message: "Comment successfully deleted",
+      id: todo._id
     };
     return res.status(200).send(response);
-});
+  })
+//   .then(function(){
+//     console.log("next delete");
+//   db.News.deleteOne({note:ObjectId(req.params.id)}, (err, todo) => {
+//     // As always, handle any potential errors:
+//     if (err) return res.status(500).send(err);
+//     // We'll create a simple object to send back with a message and the id of the document that was removed
+//     // You can really do this however you want, though.
+//     const response = {
+//         message: "News note successfully deleted",
+//         id: todo._id
+//     };
+//     return res.status(200).send(response);
+// })
+// });
 });
 
 // Route for grabbing a specific Article by id, populate it with it's note
@@ -121,23 +134,6 @@ app.get("/articles/:id", function(req, res) {
   });
 });
 
-// -------------------------------------------------------------------------------------
-// app.get("/comments/:id", function(req, res) {
-//   // TODO
-//   // ====
-//   // Finish the route so it finds one article using the req.params.id,
-//   // and run the populate method with "note",
-//   // then responds with the article with the note included
-//   db.News.findOne({ _id: req.params.id})
-//   .then(function(dbArticle) {
-//     // If all Users are successfully found, send them back to the client
-//     res.json(dbArticle);
-//   })
-//   .catch(function(err) {
-//     // If an error occurs, send the error back to the client
-//     res.json(err);
-//   });
-// });
 
 app.get("/comments/:id", function(req, res) {
     // TODO
@@ -148,6 +144,7 @@ app.get("/comments/:id", function(req, res) {
     db.News.findOne({ _id: req.params.id})
     .then(function(dbArticle) {
       console.log("db"+dbArticle);
+      // res.json(dbArticle);
       // If all Users are successfully found, send them back to the client
       db.Comments.find({_id: dbArticle})
         .then(function(data){
